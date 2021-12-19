@@ -50,3 +50,34 @@ body {
   -o-user-select: none;
   user-select: none;
 }
+
+.piano {
+  display: inline-flex;
+  border-color: black;
+  border-style: solid;
+  border-width: 15px;
+  border-top-width: 40px;
+}
+
+.piano-key {
+  height: calc(var(--width) * 4);
+  width: var(--width);
+}
+
+.white {
+  --width: 80px;
+  background-color: white;
+  border: 1px solid #333;
+}
+
+.black {
+  --width: 50px;
+  background-color: black;
+  margin-left: calc(var(--width) / -2);
+  margin-right: calc(var(--width) / -2);
+  z-index: 2;
+}
+
+.pressed {
+  filter: brightness(80%);
+}

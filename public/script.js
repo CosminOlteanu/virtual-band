@@ -18,11 +18,16 @@ socket.addEventListener('message', function (event) {
 
 const band = document.querySelector('.band');
 
+const piano = document.querySelector('.piano');
+
+
 let bandMap = new Map();
-bandMap.set(1, 'clap');
-bandMap.set(2, 'hihat');
-bandMap.set(3, 'open-hihat');
-bandMap.set(4, 'kick');
+bandMap.set(1, 'piano');
+bandMap.set(2, 'clap');
+bandMap.set(3, 'hihat');
+bandMap.set(4, 'open-hihat');
+bandMap.set(5, 'kick');
+bandMap.set(6, 'snare');
 
 function pickInstrument(instruments) {
     for (const [key, value] of Object.entries(instruments)) {
@@ -32,9 +37,11 @@ function pickInstrument(instruments) {
 }
 
 function play(event) {
-  if (event.target.classList.contains('pad')) {
+  if (event.target.classList.contains('pad') || event.target.classList.contains('piano-key')) {
     event.preventDefault();
     let soundToPlay = event.target.dataset.sound;
+
+    if (soundToPlay === 'piano') return
 
     const message = {type: 'SOUND', data: soundToPlay};
     socket.send(JSON.stringify(message));
@@ -46,6 +53,11 @@ function play(event) {
       }
       audio.currentTime = 0 // rewind to the start
       audio.play()
+
+      event.target.classList.add('pressed')
+      audio.addEventListener('ended', () => {
+        event.target.classList.remove('pressed')
+      })
   }
 }
 
@@ -53,10 +65,17 @@ function playRemote(sound) {
     const audio = document.querySelector(`audio[data-key = "${sound}"]`)
 
     if (!audio){
-        return //stop the function from running all together
-      }
-      audio.currentTime = 0 // rewind to the start
-      audio.play()
+      return //stop the function from running all together
+    }
+    audio.currentTime = 0 // rewind to the start
+    audio.play()
+
+    const dataSound = document.querySelector(`[data-sound = "${sound}"]`)
+
+    dataSound.classList.add('pressed')
+    audio.addEventListener('ended', () => {
+      dataSound.classList.remove('pressed')
+    })
 }
 
 function setViewportHeight() {
@@ -72,3 +91,5 @@ window.addEventListener('resize', () => {
 
 band.addEventListener('click', play);
 band.addEventListener('touchstart', play);
+
+piano.addEventListener('click', play);

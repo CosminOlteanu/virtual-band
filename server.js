@@ -17,10 +17,12 @@ const server = app.listen(port, () => console.log(`Server started on Port ${port
 const webSocket = new WebSocket.Server({ server:server });
 
 let bandMap = new Map();
+bandMap.set('piano', null);
 bandMap.set('clap', null);
 bandMap.set('hihat', null);
 bandMap.set('open-hihat', null);
 bandMap.set('kick', null);
+bandMap.set('snare', null);
 
 webSocket.on('connection', function connection(ws) {
   console.log('A new client Connected!');
