@@ -52,13 +52,13 @@ webSocket.on('connection', function connection(ws) {
         }
       }
 
-      const message = {type: 'NEW_CONNECTION', data: Object.fromEntries(map)}
+      const message = {type: 'CONNECTIONS_UPDATED', data: Object.fromEntries(map)}
       client.send(JSON.stringify(message));
     }
   });
 
   ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
+    console.log('websocket message received: %s', message);
 
     webSocket.clients.forEach(function each(client) {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -85,26 +85,26 @@ webSocket.on('connection', function connection(ws) {
       }
     }
 
-        //notify all users when new user connected
-        webSocket.clients.forEach(function each(client) {
-          if (client.readyState === WebSocket.OPEN) {
-            let map = new Map();
-            
-            for (const [key, value] of bandMap.entries()) {
-              if (!value) {
-                map.set(key, '')
-              } else
-              if (value === client) {
-                map.set(key, 'active')
-              } else 
-              if (value !== client) {
-                map.set(key, 'busy')
-              }
-            }
-      
-            const message = {type: 'NEW_CONNECTION', data: Object.fromEntries(map)}
-            client.send(JSON.stringify(message));
+    //notify all users when new user disconnected
+    webSocket.clients.forEach(function each(client) {
+      if (client.readyState === WebSocket.OPEN) {
+        let map = new Map();
+        
+        for (const [key, value] of bandMap.entries()) {
+          if (!value) {
+            map.set(key, '')
+          } else
+          if (value === client) {
+            map.set(key, 'active')
+          } else 
+          if (value !== client) {
+            map.set(key, 'busy')
           }
-        });
+        }
+  
+        const message = {type: 'CONNECTIONS_UPDATED', data: Object.fromEntries(map)}
+        client.send(JSON.stringify(message));
+      }
+    });
   });
 });

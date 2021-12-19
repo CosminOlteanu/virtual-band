@@ -3,23 +3,21 @@ const socketUrl = (window.location.hostname.startsWith('localhost') ? "ws://" : 
 const socket = new WebSocket(socketUrl);
 
 socket.addEventListener('message', function (event) {
-    const message = JSON.parse(event.data)
-    switch (message.type) {
-        case 'NEW_CONNECTION':
-            pickInstrument(message.data)
-            break;
-        case 'SOUND':
-            playRemote(message.data)
-            break;
-        default:
-            console.log('Unknown websocket message ' + message.data);
-    }
+  const message = JSON.parse(event.data)
+  switch (message.type) {
+    case 'CONNECTIONS_UPDATED':
+      pickInstrument(message.data)
+      break;
+    case 'SOUND':
+      playRemote(message.data)
+      break;
+    default:
+      console.log('Unknown websocket message ' + message.data);
+  }
 });
 
 const band = document.querySelector('.band');
-
 const piano = document.querySelector('.piano');
-
 
 let bandMap = new Map();
 bandMap.set(1, 'piano');
@@ -30,52 +28,56 @@ bandMap.set(5, 'kick');
 bandMap.set(6, 'snare');
 
 function pickInstrument(instruments) {
-    for (const [key, value] of Object.entries(instruments)) {
-      const instrument = document.querySelector(`[data-sound = "${key}"]`)
-      instrument.classList = "pad " + value
-    }
+  if (Object.values(instruments).every(function (instrument) { return instrument === 'busy' })) {
+    alert('Sorry the band is full. You cannot play, you can only listen.');
+  }
+  for (const [key, value] of Object.entries(instruments)) {
+    const instrument = document.querySelector(`[data-sound = "${key}"]`)
+    instrument.classList = "pad " + value
+  }
 }
 
 function play(event) {
-  if (event.target.classList.contains('pad') || event.target.classList.contains('piano-key')) {
+  const pressedInstrument = event.target;
+  if (pressedInstrument.classList.contains('pad') || pressedInstrument.classList.contains('piano-key')) {
     event.preventDefault();
-    let soundToPlay = event.target.dataset.sound;
+    let soundToPlay = pressedInstrument.dataset.sound;
 
     if (soundToPlay === 'piano') return
 
-    const message = {type: 'SOUND', data: soundToPlay};
+    const message = { type: 'SOUND', data: soundToPlay };
     socket.send(JSON.stringify(message));
 
     const audio = document.querySelector(`audio[data-key = "${soundToPlay}"]`)
 
-    if (!audio){
-        return //stop the function from running all together
-      }
-      audio.currentTime = 0 // rewind to the start
-      audio.play()
-
-      event.target.classList.add('pressed')
-      audio.addEventListener('ended', () => {
-        event.target.classList.remove('pressed')
-      })
-  }
-}
-
-function playRemote(sound) {
-    const audio = document.querySelector(`audio[data-key = "${sound}"]`)
-
-    if (!audio){
+    if (!audio) {
       return //stop the function from running all together
     }
     audio.currentTime = 0 // rewind to the start
     audio.play()
 
-    const dataSound = document.querySelector(`[data-sound = "${sound}"]`)
-
-    dataSound.classList.add('pressed')
+    pressedInstrument.classList.add('pressed')
     audio.addEventListener('ended', () => {
-      dataSound.classList.remove('pressed')
+      pressedInstrument.classList.remove('pressed')
     })
+  }
+}
+
+function playRemote(sound) {
+  const audio = document.querySelector(`audio[data-key = "${sound}"]`)
+
+  if (!audio) {
+    return //stop the function from running all together
+  }
+  audio.currentTime = 0 // rewind to the start
+  audio.play()
+
+  const dataSound = document.querySelector(`[data-sound = "${sound}"]`)
+
+  dataSound.classList.add('pressed')
+  audio.addEventListener('ended', () => {
+    dataSound.classList.remove('pressed')
+  })
 }
 
 function setViewportHeight() {
