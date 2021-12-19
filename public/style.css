@@ -1,0 +1,52 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #282828;
+}
+
+.band {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+.pad {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+  flex: 1 0 calc(50% - 20px);
+  background: radial-gradient(#959695, #222222);
+  pointer-events: none;
+  border-radius: 10px;
+}
+
+.pad.active {
+  background: radial-gradient(#51be63, #0e8021);
+  pointer-events: auto;
+}
+
+.pad.inactive {
+  background: radial-gradient(#959695, #222222);
+  pointer-events: none;
+}
+
+.pad.busy {
+  background: radial-gradient(#cc5a5a, #be1313);
+  pointer-events: none;
+}
+
+.pad img {
+  width: 150px;
+  pointer-events: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
